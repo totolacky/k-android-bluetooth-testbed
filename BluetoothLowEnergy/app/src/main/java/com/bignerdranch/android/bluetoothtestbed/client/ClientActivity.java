@@ -21,6 +21,7 @@ import android.os.Looper;
 import android.os.ParcelUuid;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 
@@ -30,6 +31,7 @@ import com.bignerdranch.android.bluetoothtestbed.databinding.ViewGattServerBindi
 import com.bignerdranch.android.bluetoothtestbed.util.BluetoothUtils;
 import com.bignerdranch.android.bluetoothtestbed.util.StringUtils;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -215,11 +217,25 @@ public class ClientActivity extends AppCompatActivity implements GattClientActio
             logError("BLE Scan Failed with code " + errorCode);
         }
 
+        /****************************************************************************
+         *
+         * 받은 packet을 addScanResult() 함수에서 제대로 decode할 수 있는지 확인해주세요.
+         *
+         *****************************************************************************/
+
         private void addScanResult(ScanResult result) {
+            Log.i(TAG,"ScanResult:");
+            Log.i(TAG,result.toString());
+            //Log.i(TAG, Integer.toString(result.getScanRecord().getManufacturerSpecificData().size()));
+            Log.i(TAG,new String(result.getScanRecord().getManufacturerSpecificData().get(0), StandardCharsets.UTF_8));
             BluetoothDevice device = result.getDevice();
             String deviceAddress = device.getAddress();
             mScanResults.put(deviceAddress, device);
         }
+    }
+
+    private String sparseArray2String(SparseArray<byte[]> sArray) {
+        return "";
     }
 
     // Gatt connection

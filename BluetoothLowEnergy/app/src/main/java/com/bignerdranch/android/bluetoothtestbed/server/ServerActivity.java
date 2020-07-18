@@ -136,7 +136,7 @@ public class ServerActivity extends AppCompatActivity implements GattServerActio
         BluetoothGattCharacteristic writeCharacteristic = new BluetoothGattCharacteristic(
                 CHARACTERISTIC_ECHO_UUID,
                 BluetoothGattCharacteristic.PROPERTY_WRITE,
-                        // Somehow this is not necessary, the client can still enable notifications
+                // Somehow this is not necessary, the client can still enable notifications
 //                        | BluetoothGattCharacteristic.PROPERTY_NOTIFY,
                 BluetoothGattCharacteristic.PERMISSION_WRITE);
 
@@ -183,16 +183,31 @@ public class ServerActivity extends AppCompatActivity implements GattServerActio
 
         AdvertiseSettings settings = new AdvertiseSettings.Builder()
                 .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_BALANCED)
-                .setConnectable(true)
+                .setConnectable(false)   // NOTE: This is set to true because we want connection (false if we want to use it as a beacon)
                 .setTimeout(0)
-                .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_LOW)
+                .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_LOW)  // low, since we are using BLE
                 .build();
+
+        /****************************************************************************
+         *
+         * 이 다음에 나와 있는 AdvertiseData data를 customize할 수 있는지 확인해주세요.
+         *
+         *****************************************************************************/
+
+        // The bytes that we can customize
+        byte[] testBytes = new byte[6];
 
         ParcelUuid parcelUuid = new ParcelUuid(SERVICE_UUID);
         AdvertiseData data = new AdvertiseData.Builder()
-                .setIncludeDeviceName(true)
+                .setIncludeDeviceName(false)
+                .setIncludeTxPowerLevel(true)
                 .addServiceUuid(parcelUuid)
+                .addManufacturerData(0,testBytes)
                 .build();
+
+        Log.i(TAG,"This is the advertising data");
+        Log.i(TAG, data.getServiceData().toString());
+        Log.i(TAG, data.toString());
 
         mBluetoothLeAdvertiser.startAdvertising(settings, data, mAdvertiseCallback);
     }
