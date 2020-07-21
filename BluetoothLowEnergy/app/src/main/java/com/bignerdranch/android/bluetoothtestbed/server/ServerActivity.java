@@ -40,6 +40,7 @@ import static com.bignerdranch.android.bluetoothtestbed.Constants.CHARACTERISTIC
 import static com.bignerdranch.android.bluetoothtestbed.Constants.CHARACTERISTIC_TIME_UUID;
 import static com.bignerdranch.android.bluetoothtestbed.Constants.CLIENT_CONFIGURATION_DESCRIPTOR_UUID;
 import static com.bignerdranch.android.bluetoothtestbed.Constants.SERVICE_UUID;
+import static com.bignerdranch.android.bluetoothtestbed.util.BluetoothUtils.parseUuidFrom;
 
 public class ServerActivity extends AppCompatActivity implements GattServerActionListener {
 
@@ -185,7 +186,7 @@ public class ServerActivity extends AppCompatActivity implements GattServerActio
                 .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_BALANCED)
                 .setConnectable(false)   // NOTE: This is set to true because we want connection (false if we want to use it as a beacon)
                 .setTimeout(0)
-                .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_LOW)  // low, since we are using BLE
+                .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_LOW)  // low, since we are using BLE (but can be high)
                 .build();
 
         /****************************************************************************
@@ -194,15 +195,30 @@ public class ServerActivity extends AppCompatActivity implements GattServerActio
          *
          *****************************************************************************/
 
-        // The bytes that we can customize
-        byte[] testBytes = new byte[6];
+        // Service data payload, as in GAEN protocol
+        byte[] RPI = new byte[16], AEM = new byte[4];
+        byte[] advertisingBytes = new byte[20];
+        // Exposure Notification Service UUID: 0xfd6f
+        byte[] serviceUuidBytes = new byte[] { (byte)0x6f, (byte)0xfd };
 
-        ParcelUuid parcelUuid = new ParcelUuid(SERVICE_UUID);
+        // TEST: RPI as "01020304-0506-0708-090a-0b0c0d0e0f10"
+        // TEST: AEM as 0xc001caf3
+        for (int i = 0; i < RPI.length; i++)
+            RPI[i] = (byte)(i + 1);
+        AEM[0] = (byte)0xc0; AEM[1] = (byte)0x01;
+        AEM[2] = (byte)0xca; AEM[3] = (byte)0xf3;
+
+        for (int i = 0; i < RPI.length; i++)
+            advertisingBytes[i] = RPI[i];
+        for (int i = 0; i < AEM.length; i++)
+            advertisingBytes[i + 16] = AEM[i];
+
+        ParcelUuid parcelUuid = parseUuidFrom(serviceUuidBytes);
         AdvertiseData data = new AdvertiseData.Builder()
-                .setIncludeDeviceName(false)
-                .setIncludeTxPowerLevel(true)
+                .addServiceData(parcelUuid, advertisingBytes)
                 .addServiceUuid(parcelUuid)
-                .addManufacturerData(0,testBytes)
+                .setIncludeTxPowerLevel(false)  // txPower in AEM
+                .setIncludeDeviceName(false)
                 .build();
 
         Log.i(TAG,"This is the advertising data");
