@@ -10,6 +10,7 @@ import android.bluetooth.BluetoothManager;
 import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanFilter;
+import android.bluetooth.le.ScanRecord;
 import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
 import android.content.Intent;
@@ -33,6 +34,7 @@ import com.bignerdranch.android.bluetoothtestbed.util.StringUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -224,10 +226,14 @@ public class ClientActivity extends AppCompatActivity implements GattClientActio
          *****************************************************************************/
 
         private void addScanResult(ScanResult result) {
-            Log.i(TAG,"ScanResult:");
-            Log.i(TAG,result.toString());
-            //Log.i(TAG, Integer.toString(result.getScanRecord().getManufacturerSpecificData().size()));
-            Log.i(TAG,new String(result.getScanRecord().getManufacturerSpecificData().get(0), StandardCharsets.UTF_8));
+            Log.i(TAG, "ScanResult:");
+
+            // These four elements are probably the complete information.
+            // Reference: https://github.com/AltBeacon/android-beacon-library/blob/master/lib/src/main/java/org/altbeacon/beacon/service/scanner/CycledLeScannerForLollipop.java#L350
+            Log.i(TAG, result.getDevice() +  " / " + result.getRssi() + " / " + result.getTimestampNanos());
+            ScanRecord scanRecord = result.getScanRecord();
+            Log.i(TAG, scanRecord == null ? "(ScanRecord null)" : Arrays.toString(scanRecord.getBytes()));
+
             BluetoothDevice device = result.getDevice();
             String deviceAddress = device.getAddress();
             mScanResults.put(deviceAddress, device);
