@@ -41,6 +41,7 @@ import java.util.Map;
 
 import static com.bignerdranch.android.bluetoothtestbed.Constants.SCAN_PERIOD;
 import static com.bignerdranch.android.bluetoothtestbed.Constants.SERVICE_UUID;
+import static com.bignerdranch.android.bluetoothtestbed.util.BluetoothUtils.parseUuidFrom;
 
 public class ClientActivity extends AppCompatActivity implements GattClientActionListener {
 
@@ -119,8 +120,13 @@ public class ClientActivity extends AppCompatActivity implements GattClientActio
         // search for a mask or anything less than a full UUID.
         // Unless the full UUID of the server is known, manual filtering may be necessary.
         // For example, when looking for a brand of device that contains a char sequence in the UUID
+
+        byte[] serviceUuidBytes = new byte[] { (byte)0x6f, (byte)0xfd };
+
+        ParcelUuid parcelUuid = parseUuidFrom(serviceUuidBytes);
+
         ScanFilter scanFilter = new ScanFilter.Builder()
-                .setServiceUuid(new ParcelUuid(SERVICE_UUID))
+                .setServiceUuid(parcelUuid)
                 .build();
         List<ScanFilter> filters = new ArrayList<>();
         filters.add(scanFilter);

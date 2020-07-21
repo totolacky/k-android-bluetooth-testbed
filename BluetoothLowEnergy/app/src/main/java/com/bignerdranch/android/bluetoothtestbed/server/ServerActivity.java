@@ -184,7 +184,7 @@ public class ServerActivity extends AppCompatActivity implements GattServerActio
 
         AdvertiseSettings settings = new AdvertiseSettings.Builder()
                 .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_BALANCED)
-                .setConnectable(false)   // NOTE: This is set to true because we want connection (false if we want to use it as a beacon)
+                .setConnectable(true)   // NOTE: This is set to true because we want connection (false if we want to use it as a beacon)
                 .setTimeout(0)
                 .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_LOW)  // low, since we are using BLE (but can be high)
                 .build();
